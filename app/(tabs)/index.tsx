@@ -1,75 +1,89 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useTheme } from '@/context/ThemeContext';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { homeStyles } from './home.styles';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const savings = [
+  { type: 'add', label: 'Added to Saving', date: '2024-03', id: '2024-023' },
+  { type: 'withdraw', label: 'Withdrawn', date: '2024-05', id: '2024-023' },
+];
+const transactions = [
+  { icon: require('@/assets/images/partial-react-logo.png'), label: 'Zomato', date: 'Today • 6:32 PM', amount: '-₹ 420' },
+];
+
+const formatDate = (dateStr: string) => {
+  // Expects 'YYYY-MM' or 'YYYY-MM-DD'
+  const [year, month] = dateStr.split('-');
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+};
 
 export default function HomeScreen() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={[homeStyles.container, { backgroundColor: isDark ? '#151718' : '#eaf4ff' }]}> 
+      <LinearGradient
+        colors={isDark ? ['#232526', '#151718'] : ['#eaf4ff', '#f8fafc']}
+        style={homeStyles.gradient}
+      >
+        <View style={homeStyles.headerRow}>
+          <Image source={require('@/assets/images/myapplogo.png')} style={homeStyles.logo} />
+          <Text style={[homeStyles.appName, { color: isDark ? '#fff' : '#2563EB' }]}>MySaveMate</Text>
+          <View style={homeStyles.avatarBox}>
+            <Image source={require('@/assets/images/partial-react-logo.png')} style={homeStyles.avatar} />
+          </View>
+        </View>
+        <View style={[homeStyles.savingCard, { backgroundColor: isDark ? '#232526' : '#4d8dfd' }]}> 
+          <Text style={[homeStyles.savingLabel, { color: isDark ? '#e0e7ef' : '#e0e7ef' }]}>Total Saving</Text>
+          <Text style={[homeStyles.savingAmount, { color: isDark ? '#fff' : '#fff' }]}>₹ 2,40,081</Text>
+          <Text style={[homeStyles.savingSub, { color: isDark ? '#e0e7ef' : '#e0e7ef' }]}>You can withdraw after 2 months</Text>
+          <View style={homeStyles.actionRow}>
+            <TouchableOpacity style={[homeStyles.addBtn, { backgroundColor: '#1fa97c' }]} activeOpacity={0.85}>
+              <MaterialIcons name="add-circle" size={22} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={homeStyles.addBtnText}>Add Saving</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[homeStyles.withdrawBtn, { backgroundColor: '#e74c3c' }]} activeOpacity={0.85}>
+              <MaterialIcons name="remove-circle" size={22} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={homeStyles.withdrawBtnText}>Withdraw</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={[homeStyles.card, { backgroundColor: isDark ? '#232526' : '#fff' }]}> 
+          <Text style={[homeStyles.cardTitle, { color: isDark ? '#fff' : '#222' }]}>Saving History</Text>
+          {savings.map((item, idx) => (
+            <View key={idx} style={homeStyles.historyRow}>
+              <View style={[homeStyles.circle, item.type === 'add' ? homeStyles.plus : homeStyles.minus, { backgroundColor: item.type === 'add' ? '#1fa97c' : '#e74c3c' }]}> 
+                <IconSymbol name={item.type === 'add' ? 'plus.circle.fill' : 'minus.circle.fill'} size={20} color={'#fff'} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[homeStyles.historyLabel, { color: isDark ? '#fff' : '#222' }]}>{item.label}</Text>
+                <Text style={[homeStyles.historyDate, { color: isDark ? '#bbb' : '#888' }]}>{formatDate(item.date)}</Text>
+              </View>
+              <Text style={[homeStyles.historyId, { color: isDark ? '#888' : '#bbb' }]}>{item.id}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={[homeStyles.card, { backgroundColor: isDark ? '#232526' : '#fff' }]}> 
+          <Text style={[homeStyles.cardTitle, { color: isDark ? '#fff' : '#222' }]}>Transactions</Text>
+          {transactions.map((item, idx) => (
+            <View key={idx} style={homeStyles.transRow}>
+              <View style={[homeStyles.transIconBox, { backgroundColor: '#f87171' }]}> 
+                <MaterialIcons name="fastfood" size={20} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[homeStyles.transLabel, { color: isDark ? '#fff' : '#222' }]}>{item.label}</Text>
+                <Text style={[homeStyles.transDate, { color: isDark ? '#bbb' : '#888' }]}>{item.date}</Text>
+              </View>
+              <Text style={[homeStyles.transAmount, { color: item.amount.startsWith('-') ? '#e74c3c' : '#1fa97c' }]}>{item.amount}</Text>
+            </View>
+          ))}
+        </View>
+      </LinearGradient>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
