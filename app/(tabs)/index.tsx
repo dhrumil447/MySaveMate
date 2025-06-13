@@ -5,7 +5,14 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { homeStyles } from './home.styles';
+import { useHomeStyles } from './home.styles';
+
+// Common function
+const formatDate = (dateStr: string) => {
+  const [year, month] = dateStr.split('-');
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+};
 
 const savings = [
   { type: 'add', label: 'Added to Saving', date: '2024-03', id: '2024-023' },
@@ -15,28 +22,30 @@ const transactions = [
   { icon: require('@/assets/images/partial-react-logo.png'), label: 'Zomato', date: 'Today • 6:32 PM', amount: '-₹ 420' },
 ];
 
-const formatDate = (dateStr: string) => {
-  // Expects 'YYYY-MM' or 'YYYY-MM-DD'
-  const [year, month] = dateStr.split('-');
-  const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-};
+function CardSection({ title, children, style }: any) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const homeStyles = useHomeStyles();
+  return (
+    <View style={[homeStyles.card, { backgroundColor: isDark ? '#232526' : '#fff', marginTop: 18 }, style]}>
+      <Text style={[homeStyles.cardTitle, { color: isDark ? '#fff' : '#222' }]}>{title}</Text>
+      {children}
+    </View>
+  );
+}
 
 export default function HomeScreen() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const homeStyles = useHomeStyles();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true,
-    }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
   }, [fadeAnim]);
 
   return (
-    <View style={[homeStyles.container, { backgroundColor: isDark ? '#151718' : '#eaf4ff' }]}> 
+    <View style={[homeStyles.container, { backgroundColor: isDark ? '#151718' : '#eaf4ff' }]}>
       <LinearGradient
         colors={isDark ? ['#232526', '#151718'] : ['#eaf4ff', '#f8fafc']}
         style={homeStyles.gradient}
@@ -46,19 +55,19 @@ export default function HomeScreen() {
             <View style={homeStyles.headerRow}>
               <Image source={require('@/assets/images/myapplogo.png')} style={homeStyles.logo} />
               <Text style={[homeStyles.appName, { color: isDark ? '#fff' : '#2563EB' }]}>MySaveMate</Text>
-              <View style={homeStyles.avatarBox}>
-                <Image source={require('@/assets/images/partial-react-logo.png')} style={homeStyles.avatar} />
-              </View>
+              <TouchableOpacity style={homeStyles.avatarBox} onPress={() => alert('Profile')}>
+                <MaterialIcons name="person" size={32} color={isDark ? '#fff' : '#2563EB'} />
+              </TouchableOpacity>
             </View>
-            <View style={[homeStyles.savingCard, { backgroundColor: isDark ? '#232526' : '#4d8dfd' }]}> 
+            <View style={[homeStyles.savingCard, { backgroundColor: isDark ? '#232526' : '#4d8dfd' }]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                <Text style={[homeStyles.savingLabel, { color: isDark ? '#e0e7ef' : '#e0e7ef', marginRight: 4 }]}>Total Saving</Text>
+                <Text style={[homeStyles.savingLabel, { color: '#e0e7ef', marginRight: 4 }]}>Total Saving</Text>
                 <Pressable onPress={() => alert('This is your total accumulated savings.')} hitSlop={8}>
-                  <MaterialIcons name="info-outline" size={18} color={isDark ? '#e0e7ef' : '#fff'} />
+                  <MaterialIcons name="info-outline" size={18} color="#e0e7ef" />
                 </Pressable>
               </View>
-              <Text style={[homeStyles.savingAmount, { color: isDark ? '#fff' : '#fff' }]}>₹ 2,40,081</Text>
-              <Text style={[homeStyles.savingSub, { color: isDark ? '#e0e7ef' : '#e0e7ef' }]}>You can withdraw after 2 months</Text>
+              <Text style={[homeStyles.savingAmount, { color: '#fff' }]}>₹ 2,40,081</Text>
+              <Text style={[homeStyles.savingSub, { color: '#e0e7ef' }]}>You can withdraw after 2 months</Text>
               <View style={homeStyles.actionRow}>
                 <TouchableOpacity style={[homeStyles.addBtn, { backgroundColor: '#1fa97c' }]} activeOpacity={0.85}>
                   <MaterialIcons name="add-circle" size={22} color="#fff" style={{ marginRight: 6 }} />
@@ -72,11 +81,10 @@ export default function HomeScreen() {
             </View>
             <View style={{ height: 18 }} />
             <View style={{ height: 1, backgroundColor: isDark ? '#232526' : '#e0e7ef', marginHorizontal: 24, borderRadius: 2, opacity: 0.5 }} />
-            <View style={[homeStyles.card, { backgroundColor: isDark ? '#232526' : '#fff', marginTop: 18 }]}> 
-              <Text style={[homeStyles.cardTitle, { color: isDark ? '#fff' : '#222' }]}>Saving History</Text>
+            <CardSection title="Saving History">
               {savings.map((item, idx) => (
                 <View key={idx} style={homeStyles.historyRow}>
-                  <View style={[homeStyles.circle, item.type === 'add' ? homeStyles.plus : homeStyles.minus, { backgroundColor: item.type === 'add' ? '#1fa97c' : '#e74c3c' }]}> 
+                  <View style={[homeStyles.circle, item.type === 'add' ? homeStyles.plus : homeStyles.minus, { backgroundColor: item.type === 'add' ? '#1fa97c' : '#e74c3c' }]}>
                     <IconSymbol name={item.type === 'add' ? 'plus.circle.fill' : 'minus.circle.fill'} size={20} color={'#fff'} />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -86,12 +94,11 @@ export default function HomeScreen() {
                   <Text style={[homeStyles.historyId, { color: isDark ? '#888' : '#bbb' }]}>{item.id}</Text>
                 </View>
               ))}
-            </View>
-            <View style={[homeStyles.card, { backgroundColor: isDark ? '#232526' : '#fff', marginTop: 18 }]}> 
-              <Text style={[homeStyles.cardTitle, { color: isDark ? '#fff' : '#222' }]}>Transactions</Text>
+            </CardSection>
+            <CardSection title="Transactions">
               {transactions.map((item, idx) => (
                 <View key={idx} style={homeStyles.transRow}>
-                  <View style={[homeStyles.transIconBox, { backgroundColor: '#f87171' }]}> 
+                  <View style={[homeStyles.transIconBox, { backgroundColor: '#f87171' }]}>
                     <MaterialIcons name="fastfood" size={20} color="#fff" />
                   </View>
                   <View style={{ flex: 1 }}>
@@ -101,7 +108,7 @@ export default function HomeScreen() {
                   <Text style={[homeStyles.transAmount, { color: item.amount.startsWith('-') ? '#e74c3c' : '#1fa97c' }]}>{item.amount}</Text>
                 </View>
               ))}
-            </View>
+            </CardSection>
           </Animated.View>
         </ScrollView>
       </LinearGradient>
