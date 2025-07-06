@@ -1,7 +1,7 @@
 import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { Switch, Text, View } from 'react-native';
-import { profileStyles } from './profile.styles';
+import { profileStyles } from '../styles/profile.styles';
 
 export default function ProfileScreen() {
   const { theme, toggleTheme } = useTheme();

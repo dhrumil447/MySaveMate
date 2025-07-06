@@ -33,8 +33,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#4d8dfd',
         tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: { position: 'absolute' },
           default: {},
@@ -46,6 +44,8 @@ export default function TabLayout() {
             color={focused ? activeIconColor : iconColor}
           />
         ),
+        tabBarButton: HapticTab,
+        tabBarBackground: TabBarBackground,
       })}
     >
       {TABS.map(tab => (
